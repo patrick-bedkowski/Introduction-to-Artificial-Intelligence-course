@@ -1,5 +1,6 @@
 from keras.datasets import mnist
 from keras.utils import np_utils
+from sklearn.utils import shuffle
 
 
 def load_data():
@@ -7,6 +8,8 @@ def load_data():
 
 
 def preprocess_data(x, y, start=None, end=None):
+    x, y = shuffle(x, y, random_state=27)
+
     x = x.reshape(x.shape[0], 28 * 28, 1)
     x = x.astype("float32") / 255
 
