@@ -6,6 +6,7 @@ from Layers import (Layer,
                     sigmoid_prime)
 
 import numpy as np
+import copy
 
 import file_management as fm
 
@@ -22,10 +23,11 @@ class NeuralNet:
         self.layers.append(layer)
 
     def predict(self, input_vector):
-        output_vector = input_vector
+        output_vector_tmp = copy.copy(input_vector)
         for layer in self.layers:
-            output_vector = layer.forward_propagation(output_vector)
-        return output_vector
+            output_vector = layer.forward_propagation(output_vector_tmp)
+            output_vector_tmp = copy.copy(output_vector)
+        return output_vector_tmp
 
     def initiate_weights_of_input_layer(self, n_neurons):
         input_layer = self.layers[0]  # get first layer
@@ -72,13 +74,13 @@ if __name__ == '__main__':
     x_train, y_train = fm.preprocess_data(x_train, y_train)
     x_test, y_test = fm.preprocess_data(x_test, y_test)
 
-    nn = NeuralNet(learning_rate=0.02, epochs=5,
+    nn = NeuralNet(learning_rate=0.1, epochs=5,
                    loss_function=mse, loss_prime=mse_prime)
 
     n_neurons = x_train.shape[1]
 
-    nn.add(Input(20, sigmoid, sigmoid_prime))
-    nn.add(Hidden(20, 10, sigmoid, sigmoid_prime))
+    nn.add(Input(40, sigmoid, sigmoid_prime))
+    nn.add(Hidden(40, 10, sigmoid, sigmoid_prime))
     nn.add(Softmax())
 
     nn.train(x_train, y_train, True)

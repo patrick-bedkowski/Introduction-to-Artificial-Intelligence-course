@@ -2,7 +2,6 @@ from abc import abstractmethod, ABC
 import numpy as np
 from typing import Tuple
 
-
 class Layer(ABC):
     def __init__(self):
         super().__init__()
@@ -65,12 +64,12 @@ class Hidden(Layer):  # hidden layer
         using the chain rule, it is seen, that it is simply derivative of an error
         with respect to the output vector from the previous layer.
         """
-        dE_dW = previous_layer_output_gradient @ np.transpose(self.input_vector)  # Error derv with respect to weights
+        dE_dW = np.dot(previous_layer_output_gradient, np.transpose(self.input_vector))  # Error derv with respect to weights
 
         self.weights -= learning_rate * dE_dW
         self.biases -= learning_rate * previous_layer_output_gradient
 
-        dE_dX = np.transpose(self.weights) @ previous_layer_output_gradient
+        dE_dX = np.dot(np.transpose(self.weights), previous_layer_output_gradient)
 
         # apply activation function
         next_output = np.multiply(dE_dX,
@@ -83,7 +82,9 @@ class Input(Hidden):
     def __init__(self, output_size, activation_function, activation_prime):
         super().__init__(0, output_size, activation_function, activation_prime)
 
+
 class Softmax(Layer):
+    # TODO: improve softmax layer
     def __init__(self):
         super().__init__()
 
@@ -95,11 +96,18 @@ class Softmax(Layer):
     def backward_propagation(self, output_gradient, learning_rate):
         # This version is faster than the one presented in the video
         n = np.size(self.output_vector)
-        return np.dot((np.identity(n) - np.transpose(self.output_vector)) * self.output_vector, output_gradient)
+        tmp = np.tile(self.output_vector, n)
+        gradient = np.dot(tmp * (np.identity(n) - np.transpose(tmp)), output_gradient)
+        return gradient
 
 
 def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
+    try:
+        value = 1 / (1 + np.exp(-x))
+    except RuntimeWarning:
+        print(x)
+    else:
+        return value
 
 
 def sigmoid_prime(x):
