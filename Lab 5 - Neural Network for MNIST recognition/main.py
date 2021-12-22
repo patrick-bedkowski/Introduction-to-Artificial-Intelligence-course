@@ -1,5 +1,9 @@
-from Layers import (Dense, Layer, Softmax,
-                    sigmoid, sigmoid_prime)
+from Layers import (Layer,
+                    Input,
+                    Hidden,
+                    Softmax,
+                    sigmoid,
+                    sigmoid_prime)
 
 import numpy as np
 
@@ -23,8 +27,13 @@ class NeuralNet:
             output_vector = layer.forward_propagation(output_vector)
         return output_vector
 
-    def train(self, x_train, y_train, verbose=True):
+    def initiate_weights_of_input_layer(self, n_neurons):
+        input_layer = self.layers[0]  # get first layer
+        input_layer.input_size = n_neurons
+        input_layer.weights = input_layer.initiate_weights(input_layer.input_size, input_layer.output_size, (-1, 1))
 
+    def train(self, x_train, y_train, verbose=True):
+        self.initiate_weights_of_input_layer(x_train.shape[1])
         error = 0
         for epoch in range(1, self.epochs+1):
             classified_correctly_counter = 0
@@ -68,8 +77,8 @@ if __name__ == '__main__':
 
     n_neurons = x_train.shape[1]
 
-    nn.add(Dense(n_neurons, 20, sigmoid, sigmoid_prime))
-    nn.add(Dense(20, 10, sigmoid, sigmoid_prime))
+    nn.add(Input(20, sigmoid, sigmoid_prime))
+    nn.add(Hidden(20, 10, sigmoid, sigmoid_prime))
     nn.add(Softmax())
 
     nn.train(x_train, y_train, True)

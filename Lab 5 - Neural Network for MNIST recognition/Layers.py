@@ -37,11 +37,13 @@ class Layer(ABC):
         return np.zeros((nn_input, 1))
 
 
-class Dense(Layer):  # hidden layer
+class Hidden(Layer):  # hidden layer
     def __init__(self, input_size, output_size, activation_function, activation_prime):
         super().__init__()
-        self.weights = self.initiate_weights(input_size, output_size, (-1, 1))
-        self.biases = self.initiate_biases(output_size)
+        self.input_size = input_size
+        self.output_size = output_size
+        self.weights = self.initiate_weights(self.input_size, self.output_size, (-1, 1))
+        self.biases = self.initiate_biases(self.output_size)
         self.activation_function = activation_function
         self.activation_prime = activation_prime
 
@@ -76,6 +78,10 @@ class Dense(Layer):  # hidden layer
 
         return next_output
 
+
+class Input(Hidden):
+    def __init__(self, output_size, activation_function, activation_prime):
+        super().__init__(0, output_size, activation_function, activation_prime)
 
 class Softmax(Layer):
     def __init__(self):
