@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABC
 import numpy as np
 from typing import Tuple
+import copy
 
 class Layer(ABC):
     def __init__(self):
@@ -36,21 +37,19 @@ class Layer(ABC):
         return np.zeros((nn_input, 1))
 
 
-class Hidden(Layer):  # hidden layer
-    def __init__(self, input_size, output_size, activation_function, activation_prime):
+class Dense(Layer):
+    def __init__(self, input_size, output_size):
         super().__init__()
         self.input_size = input_size
         self.output_size = output_size
         self.weights = self.initiate_weights(self.input_size, self.output_size, (-1, 1))
         self.biases = self.initiate_biases(self.output_size)
-        self.activation_function = activation_function
-        self.activation_prime = activation_prime
 
     def forward_propagation(self, input_vector):
         self.input_vector = input_vector
 
         y = self.biases + np.dot(self.weights, self.input_vector)
-        return self.activation_function(y)
+        return y
 
     def backward_propagation(self, previous_layer_output_gradient, learning_rate):
         """
@@ -64,33 +63,23 @@ class Hidden(Layer):  # hidden layer
         using the chain rule, it is seen, that it is simply derivative of an error
         with respect to the output vector from the previous layer.
         """
-        dE_dW = np.dot(previous_layer_output_gradient, np.transpose(self.input_vector))  # Error derv with respect to weights
+        dE_dW = np.dot(previous_layer_output_gradient, self.input_vector.T)  # Error derv with respect to weights
 
         self.weights -= learning_rate * dE_dW
         self.biases -= learning_rate * previous_layer_output_gradient
 
-        dE_dX = np.dot(np.transpose(self.weights), previous_layer_output_gradient)
+        dE_dX = np.dot(self.weights.T, previous_layer_output_gradient)
 
-        # apply activation function
-        next_output = np.multiply(dE_dX,
-                                  self.activation_prime(self.input_vector))
-
-        return next_output
-
-
-class Input(Hidden):
-    def __init__(self, output_size, activation_function, activation_prime):
-        super().__init__(0, output_size, activation_function, activation_prime)
+        return dE_dX
 
 
 class Softmax(Layer):
-    # TODO: improve softmax layer
     def __init__(self):
         super().__init__()
 
     def forward_propagation(self, input_vector):
-        exp_val = np.exp(input_vector)
-        self.output_vector = exp_val / np.sum(exp_val)
+        exp_val = np.exp(input_vector)  # - np.max(input_vector, keepdims=True)
+        self.output_vector = exp_val / np.sum(exp_val, keepdims=True)  # calculate probabilities
         return self.output_vector
 
     def backward_propagation(self, output_gradient, learning_rate):
@@ -99,6 +88,20 @@ class Softmax(Layer):
         tmp = np.tile(self.output_vector, n)
         gradient = np.dot(tmp * (np.identity(n) - np.transpose(tmp)), output_gradient)
         return gradient
+
+
+class Activation(Layer):
+    def __init__(self, activation_function, activation_prime):
+        super().__init__()
+        self.activation_function = activation_function
+        self.activation_prime = activation_prime
+
+    def forward_propagation(self, input_vector):
+        self.input_vector = input_vector
+        return self.activation_function(input_vector)
+
+    def backward_propagation(self, output_gradient, learning_rate):
+        return np.multiply(output_gradient, self.activation_prime(self.input_vector))
 
 
 def sigmoid(x):
@@ -111,4 +114,18 @@ def sigmoid(x):
 
 
 def sigmoid_prime(x):
-    return np.exp(-x)/((np.exp(-x)+1)**2)
+    return np.exp(-x)/(1+(np.exp(-x))**2)
+
+
+def relu(x):
+    def maximize(i):
+        return max(0.0, i)
+    myfunc_vec = np.vectorize(maximize)
+    result = myfunc_vec(x)
+    return result
+
+
+def relu_prime(x):
+    x[x <= 0] = 0
+    x[x > 0] = 1
+    return x

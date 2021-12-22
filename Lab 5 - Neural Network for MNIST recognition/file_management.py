@@ -7,13 +7,15 @@ def load_data():
     return mnist.load_data()
 
 
-def preprocess_data(x, y, start=None, end=None):
-    x, y = shuffle(x, y, random_state=27)
+def preprocess_data(x, y, start=None, end=None, shuffle_data=False):
+    x, y = shuffle(x, y, random_state=101)
 
     x = x.reshape(x.shape[0], 28 * 28, 1)
-    x = x.astype("float32") / 255
+    x = x.astype("float64")
+    x = x / 255  # reduce pixel values
 
     # oneHotEncode output which is a number in range [0,9] into a vector of size 10
+    y = y.astype("float64")
     y = np_utils.to_categorical(y)
     y = y.reshape(y.shape[0], 10, 1)
 
