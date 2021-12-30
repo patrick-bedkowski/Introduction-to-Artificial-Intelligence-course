@@ -1,14 +1,13 @@
 from abc import abstractmethod, ABC
 import numpy as np
 from typing import Tuple
-import copy
+
 
 class Layer(ABC):
     def __init__(self):
         super().__init__()
         self.input_vector = None
         self.output_vector = None
-        # TODO: Write abstract method __str__
 
     @abstractmethod
     def forward_propagation(self, input_vector):
@@ -78,7 +77,7 @@ class Softmax(Layer):
         super().__init__()
 
     def forward_propagation(self, input_vector):
-        exp_val = np.exp(input_vector)  # - np.max(input_vector, keepdims=True)
+        exp_val = np.exp(input_vector)
         self.output_vector = exp_val / np.sum(exp_val, keepdims=True)  # calculate probabilities
         return self.output_vector
 
