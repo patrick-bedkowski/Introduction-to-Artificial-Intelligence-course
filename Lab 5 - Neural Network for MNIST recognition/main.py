@@ -20,7 +20,7 @@ class NeuralNet:
         self._loss_function = loss_function
         self._loss_prime = loss_prime
 
-    def add(self, layer: Layer):
+    def add(self, layer):
         self.layers.append(layer)
 
     def propagate_through_layers(self, input_vector):
@@ -57,7 +57,7 @@ class NeuralNet:
 
             if verbose:
                 cc_rate = round(classified_correctly_counter*100/len(y_train), ndigits=4)
-                print(f"Epoch {epoch}, classified correctly: {cc_rate}, error {error}")
+                # print(f"Epoch {epoch}, classified correctly: {cc_rate}, error {error}")
 
 
 def mse(y_true, y_pred):
@@ -134,7 +134,7 @@ def main():
             exec_time = time.time() - start_time
 
             n_neurons_layer_1 = neurons[0] if two_hid else neurons
-            n_neurons_layer_2 = neurons[2] if two_hid else neurons
+            n_neurons_layer_2 = neurons[1] if two_hid else neurons
 
             data_to_save = {'Epoch': epochs,
                             'Learning rate': learning_rate,
@@ -145,6 +145,7 @@ def main():
                             'Execution time': exec_time}
 
             results_df = results_df.append(data_to_save, ignore_index=True)
+            print(results_df)
 
     results_df.to_csv('data_1.csv', index=False)
     # classification_results.value_count()
@@ -152,5 +153,73 @@ def main():
     results_df.to_latex(buf='table_1.txt', decimal=',')
 
 
+def examine_learning_rate(epochs, first_layer_neurons, second_layer_neurons=None):
+
+    learning_rates = [0.05, 0.10, 0.15, 0.20]
+
+    (x_train, y_train), (x_test, y_test) = fm.load_data()
+    x_train, y_train = fm.preprocess_data(x_train, y_train)
+    x_test, y_test = fm.preprocess_data(x_test, y_test)
+
+    results_df = pd.DataFrame(columns=['Epoch', 'Learning rate', 'Hidden layers',
+                                       'N of input neurons in layer 1',
+                                       'N of input neurons in layer 2',
+                                       'Classified correctly', "Execution time"])
+
+
+    for learning_rate in learning_rates:
+
+        nn = NeuralNet(learning_rate=learning_rate, epochs=epochs,
+                           loss_function=mse, loss_prime=mse_prime)
+
+        nn.add(Dense(784, first_layer_neurons))
+        nn.add(Activation(sigmoid, sigmoid_prime))
+
+        if second_layer_neurons:
+            nn.add(Dense(first_layer_neurons, second_layer_neurons))
+            nn.add(Activation(sigmoid, sigmoid_prime))
+            nn.add(Dense(second_layer_neurons, 10))
+        else:
+            nn.add(Dense(first_layer_neurons, 10))
+
+        nn.add(Activation(sigmoid, sigmoid_prime))
+        nn.add(Softmax())
+
+        start_time = time.time()
+
+        nn.fit(x_train, y_train, False)
+
+        # TESTING
+        classified_correctly_counter = 0
+        for x, y in zip(x_test, y_test):
+            output = nn.propagate_through_layers(x)
+            classified_correctly_counter += int(np.argmax(output) == np.argmax(y))
+
+        cc_rate = round(classified_correctly_counter * 100 / len(y_test), ndigits=4)
+
+        exec_time = time.time() - start_time
+
+        n_neurons_layer_1 = first_layer_neurons
+        n_neurons_layer_2 = second_layer_neurons if second_layer_neurons else "-"
+
+        data_to_save = {'Epoch': epochs,
+                        'Learning rate': learning_rate,
+                        'Hidden layers': '2' if second_layer_neurons else '1',
+                        'N of input neurons in layer 1': n_neurons_layer_1,
+                        'N of input neurons in layer 2': n_neurons_layer_2,
+                        'Classified correctly': cc_rate,
+                        'Execution time': exec_time}
+
+        results_df = results_df.append(data_to_save, ignore_index=True)
+        print(results_df)
+
+    results_df.to_csv('data_learning_rate.csv', index=False)
+    results_df.to_latex(buf='table_learning_rate.txt', decimal=',')
+
+
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+
+    examine_learning_rate(epochs=10, first_layer_neurons=15, second_layer_neurons=30)
