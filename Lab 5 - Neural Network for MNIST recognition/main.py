@@ -12,7 +12,7 @@ import numpy as np
 import file_management as fm
 
 
-class NeuralNet:
+class Neural_net:
     def __init__(self, learning_rate, epochs, loss_function, loss_prime):
         self.learning_rate = learning_rate
         self.epochs = epochs
@@ -57,7 +57,7 @@ class NeuralNet:
 
             if verbose:
                 cc_rate = round(classified_correctly_counter*100/len(y_train), ndigits=4)
-                # print(f"Epoch {epoch}, classified correctly: {cc_rate}, error {error}")
+                print(f"Epoch {epoch}, classified correctly: {cc_rate}, error {error}")
 
 
 def mse(y_true, y_pred):
@@ -95,7 +95,7 @@ def main():
             else:
                 neurons = one_layers
 
-            nn = NeuralNet(learning_rate=learning_rate, epochs=epochs,
+            nn = Neural_net(learning_rate=learning_rate, epochs=epochs,
                            loss_function=mse, loss_prime=mse_prime)
 
             if two_hid:
@@ -177,7 +177,7 @@ def examine_learning_rate(epochs, first_layer_neurons, second_layer_neurons=None
 
     for learning_rate in learning_rates:
 
-        nn = NeuralNet(learning_rate=learning_rate, epochs=epochs,
+        nn = Neural_net(learning_rate=learning_rate, epochs=epochs,
                            loss_function=mse, loss_prime=mse_prime)
 
         nn.add(Dense(784, first_layer_neurons))
@@ -241,7 +241,7 @@ def examine_epochs(learning_rate, first_layer_neurons, second_layer_neurons=None
 
     for epochs in epochs_numbers:
 
-        nn = NeuralNet(learning_rate=learning_rate, epochs=epochs,
+        nn = Neural_net(learning_rate=learning_rate, epochs=epochs,
                            loss_function=mse, loss_prime=mse_prime)
 
         nn.add(Dense(784, first_layer_neurons))
@@ -301,7 +301,7 @@ if __name__ == '__main__':
         second_layer = best_set[1]
 
     examine_learning_rate(epochs=10, first_layer_neurons=first_layer, second_layer_neurons=second_layer)
-    examine_epochs(learning_rate=0.2, first_layer_neurons=first_layer, second_layer_neurons=second_layer)
+    examine_epochs(learning_rate=0.2,    first_layer_neurons=first_layer, second_layer_neurons=second_layer)
 
     duration = time.time() - timestamp
     print(duration)
