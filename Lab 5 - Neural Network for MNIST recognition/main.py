@@ -128,7 +128,7 @@ def examine_learning_rate(epochs, first_layer_neurons, second_layer_neurons=None
 
     for learning_rate in learning_rates:
 
-        nn = Neural_net(learning_rate=learning_rate, epochs=epochs,
+        nn = NeuralNetwork(learning_rate=learning_rate, epochs=epochs,
                            loss_function=mse, loss_prime=mse_prime)
 
         nn.add(Dense(784, first_layer_neurons))
@@ -192,7 +192,7 @@ def examine_epochs(learning_rate, first_layer_neurons, second_layer_neurons=None
 
     for epochs in epochs_numbers:
 
-        nn = Neural_net(learning_rate=learning_rate, epochs=epochs,
+        nn = NeuralNetwork(learning_rate=learning_rate, epochs=epochs,
                            loss_function=mse, loss_prime=mse_prime)
 
         nn.add(Dense(784, first_layer_neurons))
