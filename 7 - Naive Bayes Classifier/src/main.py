@@ -11,17 +11,16 @@ import pandas as pd
 if __name__ == '__main__':
     dataset = load_data()
 
-    test_sizes = list(np.arange(0.1, 0.8, 0.1))
+    test_sizes = list(np.arange(0.2, 0.95, 0.05))
     shuffles = [True, False]
 
     CLASSES = list(dataset.target.unique())
 
     # create dataframe for score aggregation
-    scores_df = pd.DataFrame(columns=['test_size', 'label',
+    scores_df = pd.DataFrame(columns=['train_size', 'label',
                                       'precision', 'recall',
                                       'accuracy', 'f1_score',
                                       'shuffle'])
-
 
     for shuffle in shuffles:
         for test_size in test_sizes:
@@ -32,7 +31,7 @@ if __name__ == '__main__':
             cm = better_confusion_matrix(actual, predictions, CLASSES)
             scores = get_scores(cm, CLASSES)
 
-            classes_with_scores = get_classes(scores, CLASSES, test_size, str(shuffle))
+            classes_with_scores = get_classes(scores, CLASSES, 1-test_size, str(shuffle))
 
             # plot_confusion_matrix(cm, classes=CLASSES, I=None)
             columns = classes_with_scores[0]
@@ -41,8 +40,8 @@ if __name__ == '__main__':
                 scores_df = scores_df.append(to_append, ignore_index=True)
 
     # sort data
-    scores_df.sort_values(["label", "test_size"],
+    scores_df.sort_values(["shuffle", "label", "train_size"],
                           axis=0, ascending=True,
                           inplace=True)
 
-    scores_df.to_excel('scores_1.xlsx', index=True)
+    scores_df.to_excel('scores_2.xlsx', index=True)
