@@ -72,8 +72,8 @@ def get_scores(cm, classes):
     return scores
 
 
-def get_classes(scores, labels, test_size, shuffle):
-    classes = [['test_size', 'label', 'precision', 'recall', 'accuracy', 'f1_score', 'shuffle']]
+def get_classes(scores, labels, train_size, shuffle):
+    classes = [['train_size', 'label', 'precision', 'recall', 'accuracy', 'f1_score', 'shuffle']]
 
     for sc, la in zip(scores.values(), labels):
         tp, tn, fp, fn = sc
@@ -85,12 +85,12 @@ def get_classes(scores, labels, test_size, shuffle):
         accuracy = np.round(((tn+tp)/(tn+fp+tp+fn))*100, 2)
         f1_score = np.round((2*(precision*recall)/(precision+recall)), 2)
 
-        precision = precision if not np.isnan(precision) else float(100.0)
-        recall = recall if not np.isnan(recall) else float(100.0)
-        accuracy = accuracy if not np.isnan(accuracy) else float(100.0)
-        f1_score = f1_score if not np.isnan(f1_score) else float(100.0)
+        precision = precision if not np.isnan(precision) else float(0.0)
+        recall = recall if not np.isnan(recall) else float(0.0)
+        accuracy = accuracy if not np.isnan(accuracy) else float(0.0)
+        f1_score = f1_score if not np.isnan(f1_score) else float(0.0)
 
-        class_l.extend([test_size, la, precision, recall, accuracy, f1_score, shuffle])
+        class_l.extend([train_size, la, precision, recall, accuracy, f1_score, shuffle])
 
         classes.append(class_l)
     return classes
