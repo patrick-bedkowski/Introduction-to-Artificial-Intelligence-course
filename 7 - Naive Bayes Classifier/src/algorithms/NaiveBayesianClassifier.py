@@ -145,25 +145,3 @@ class NaiveBayesianClassifier:
         actual_values = list(test_df.target)
 
         return pd.Series(actual_values), pd.Series(predicted_values)
-
-    """
-            for fold_idx in range(len(folds)):
-            train_sets = copy.copy(folds)
-            train_sets.pop(fold_idx)
-
-            # merge train sets made of k-folds
-            train_set = self.merge_kfolds(train_sets)
-
-            test_samples = folds[fold_idx]
-
-            test_set = pd.DataFrame(columns=test_samples.columns)
-            for row_idx in range(len(test_samples.index)):
-                data_point = test_samples.iloc[row_idx]
-                test_set = test_set.append(data_point)
-
-            predicted_values = self.algorithm(train_set, test_set)
-            actual_values = list(test_set.target.astype(int))
-            accuracy = self.accuracy_metric(actual_values, predicted_values)
-            print(accuracy)
-            scores.append(accuracy)
-    """
