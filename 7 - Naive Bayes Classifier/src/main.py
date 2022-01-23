@@ -5,14 +5,14 @@ from src.tools.plotter import (plot_confusion_matrix,
                                get_classes)
 from src.algorithms.NaiveBayesianClassifier import NaiveBayesianClassifier
 
-import numpy as np
 import pandas as pd
 
 if __name__ == '__main__':
-    dataset = load_data()
+    dataset = load_data()  # import data
 
-    test_sizes = list(np.arange(0.2, 0.95, 0.05))
-    shuffles = [True, False]
+    train_size = 0.8
+    test_size = 0.2
+    shuffle = True
 
     CLASSES = list(dataset.target.unique())
 
@@ -22,26 +22,19 @@ if __name__ == '__main__':
                                       'accuracy', 'f1_score',
                                       'shuffle'])
 
-    for shuffle in shuffles:
-        for test_size in test_sizes:
-            nbc = NaiveBayesianClassifier(test_size=test_size)
-            actual, predictions = nbc.fit_predict(dataset, shuffle=shuffle)
+    nbc = NaiveBayesianClassifier(test_size=test_size)
+    actual, predictions = nbc.fit_predict(dataset, shuffle=shuffle)
 
-            # create matrix
-            cm = better_confusion_matrix(actual, predictions, CLASSES)
-            scores = get_scores(cm, CLASSES)
+    # create matrix
+    cm = better_confusion_matrix(actual, predictions, CLASSES)
+    scores = get_scores(cm, CLASSES)
 
-            classes_with_scores = get_classes(scores, CLASSES, 1-test_size, str(shuffle))
+    classes_with_scores = get_classes(scores, CLASSES, train_size, str(shuffle))
 
-            # plot_confusion_matrix(cm, classes=CLASSES, I=None)
-            columns = classes_with_scores[0]
-            for row in classes_with_scores[1:]:
-                to_append = dict(zip(columns, row))
-                scores_df = scores_df.append(to_append, ignore_index=True)
+    plot_confusion_matrix(cm, classes=CLASSES, I=None)
+    columns = classes_with_scores[0]
+    for row in classes_with_scores[1:]:
+        to_append = dict(zip(columns, row))
+        scores_df = scores_df.append(to_append, ignore_index=True)
 
-    # sort data
-    scores_df.sort_values(["shuffle", "label", "train_size"],
-                          axis=0, ascending=True,
-                          inplace=True)
-
-    scores_df.to_excel('scores_2.xlsx', index=True)
+    print(scores_df)
