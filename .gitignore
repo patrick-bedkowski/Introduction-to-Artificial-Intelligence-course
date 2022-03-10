@@ -3,3 +3,4 @@
 plots/
 cf_matrix/
 __pycache__/
+.gitignore
